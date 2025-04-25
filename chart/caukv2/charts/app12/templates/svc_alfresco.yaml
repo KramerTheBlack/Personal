@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-alfresco
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: alfresco
+    name: {{ .Chart.Name }}-alfresco
+spec:
+  clusterIP:  "{{tpl .Values.global.clusterips.app2.alfresco .}}"
+  ports:
+  - name: "5701"
+    port: 5701
+    targetPort: 5701
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  - name: "8443"
+    port: 8443
+    targetPort: 8443
+  - name: "10054"
+    port:  10054
+    targetPort: 10054
+  selector:
+    app: alfresco
+    name: {{ .Chart.Name }}-alfresco
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-{{ .Chart.Name }}-alfresco
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: alfresco
+    name: lb-{{ .Chart.Name }}--alfresco
+spec:
+  clusterIP:  "{{tpl .Values.global.clusterips.app2.alfresco_lb .}}"
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  - name: "8443"
+    port: 8443
+    targetPort: 8443
+  selector:
+    app: alfresco
+    name: {{ .Chart.Name }}-alfresco
+  externalTrafficPolicy: Local
+  type: LoadBalancer
+  loadBalancerIP: "{{ .Values.global.nodes.apps.server2.ip}}"
+  externalIPs: ["{{ .Values.global.nodes.apps.server2.ip}}"]

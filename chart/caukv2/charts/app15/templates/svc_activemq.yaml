@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-activemq-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-activemq
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.app5.activemq_web .}}"
+  ports:
+  - name: "8161"
+    port: 8161
+    targetPort: 8161
+  selector:
+    app: {{ .Chart.Name }}-activemq
+  type: NodePort
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-activemq
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-activemq
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.app5.activemq .}}"
+  ports:
+  - name: "61616"
+    port: 61616
+    targetPort: 61616
+    protocol: TCP
+  - name: "10087"
+    port: 10087
+    targetPort: 10087
+    protocol: TCP
+  selector:
+    app: {{ .Chart.Name }}-activemq
+  type: ClusterIP
+status:
+  loadBalancer: {}

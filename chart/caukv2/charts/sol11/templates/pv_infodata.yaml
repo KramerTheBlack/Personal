@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Chart.Name }}-infodata
+  namespace: {{ .Release.Namespace }}
+spec:
+  capacity:
+    storage: {{ .Values.global.nfs.local.solrcapacity }}
+  claimRef:
+    name: {{ .Chart.Name }}-infodata
+    namespace: {{ .Release.Namespace }}
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /opt/infodatasolr4
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.global.nodes.sol.server1.name }}
+
+# PV CLAIMS DOWNWARDS
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-infodata
+  namespace: {{ .Release.Namespace }}
+spec:
+  storageClassName: local-storage
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.global.nfs.local.solrcapacity }}
+  selector:
+    matchLabels:
+      pv: {{ .Chart.Name }}-infodata

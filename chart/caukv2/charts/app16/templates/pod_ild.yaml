@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  labels:
+    type: ild
+    service: {{ .Chart.Name }}-ild
+  name: {{ .Chart.Name }}-ild
+spec:
+#  replicas: 1
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      service: {{ .Chart.Name }}-ild
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.global.nodes.apps.server6.name }}
+      imagePullSecrets:
+        - name: harbor-registry-secret
+      containers:
+        - image: {{ .Values.global.image.repository }}/ild:latest-nouz-20240426
+#          command: ["/bin/sh","-c","java -Xms512m -Xmx8g -Djava.awt.headless=true -server -jar /opt/ild.jar"]
+#          command: ['/bin/sh -c "Xvfb :0 -screen 0 1024x768x16 & sleep 5 && java $JAVA_OPTS -jar /opt/ild/app.jar"']
+          env:
+          - name: DISPLAY
+            value: ":0.0"
+          - name: TZ
+            value: "Europe/Moscow"
+#          - name: JAVA_OPTS
+#            value: "-Xms512m -Xmx8g -server"
+          imagePullPolicy: "Always"
+          name: {{ .Chart.Name }}-ild
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+           tcpSocket:
+             port: 8080
+           initialDelaySeconds: 30
+           failureThreshold: 3
+           timeoutSeconds: 15
+           periodSeconds: 5
+#          resources:
+#            limits:
+#              cpu: "1"
+#              memory: "1024M"
+          volumeMounts:
+            - name: ild-props
+              mountPath: /opt/config/application.properties
+              subPath: ild-props
+            - name: ild-props
+              mountPath: /opt/config/log4j2-spring.xml
+              subPath: log4j
+            - name: logs
+              mountPath: /var/log
+#            - name: logsdebug
+#              mountPath: /opt/ild/logs
+      restartPolicy: Always
+      volumes:
+        - name: ild-props
+          configMap:
+            name: {{ .Chart.Name }}-ild-props
+        - name: logs
+          hostPath:
+            path: /var/log/alfresco_1/ild
+            type: DirectoryOrCreate
+#        - name: logsdebug
+#          hostPath:
+#            path: /var/log/alfresco_1/ild_debug
+#            type: DirectoryOrCreate
+    metadata:
+      labels:
+        service: {{ .Chart.Name }}-ild
+        type: ild
+status: {}

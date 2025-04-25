@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-activemq
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-activemq
+    name: {{ .Chart.Name }}-activemq
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-activemq
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-activemq
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.global.nodes.apps.server5.name }}
+      containers:
+      - image: {{ .Values.global.image.repository }}/activemq:{{ .Values.global.image.tag }}
+        imagePullPolicy: "Always"
+        livenessProbe:
+          tcpSocket:
+            port: 61616
+          failureThreshold: 20
+          periodSeconds: 15
+          timeoutSeconds: 10
+        name: {{ .Chart.Name }}-activemq
+        ports:
+        - containerPort: 8161
+        - containerPort: 61616
+        resources:
+          limits:
+#            cpu: "1"
+#            memory: "1G"
+            memory: "5G"
+            ephemeral-storage: "1G"
+          requests:
+            ephemeral-storage: "128M"
+        volumeMounts:
+          - name: logs
+            mountPath: /var/lib/artemis-instance/log
+          - name: data
+            mountPath: /var/lib/artemis-instance/data
+
+          - name: activemq-broker-xml
+            mountPath: /var/lib/artemis-instance/etc-override/broker.xml
+            subPath: activemq-broker-xml
+          - name: activemq-mgm-xml
+            mountPath: /var/lib/artemis-instance/etc-override/management.xml
+            subPath: activemq-mgm-xml
+          - name: activemq-mgm-xml
+            mountPath: /var/lib/artemis-instance/etc-override/artemis.profile
+            subPath: artemis-profile
+
+      restartPolicy: Always
+      hostname: {{ .Chart.Name }}-activemq
+      volumes:
+      - name: data
+        hostPath:
+          path: /opt/activemq_app15/data
+          type: DirectoryOrCreate
+      - name: logs
+        hostPath:
+          path: /var/log/activemq_app15
+          type: DirectoryOrCreate
+      - name: activemq-broker-xml
+        configMap:
+          name: {{ .Chart.Name }}-activemq-broker-xml
+      - name: activemq-mgm-xml
+        configMap:
+          name: {{ .Chart.Name }}-activemq-mgm-xml
+      imagePullSecrets:
+        - name: harbor-registry-secret

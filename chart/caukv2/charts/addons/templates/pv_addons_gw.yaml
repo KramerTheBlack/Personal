@@ -1,0 +1,114 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Chart.Name }}-bj-gw
+  namespace: {{ .Release.Namespace }}
+  labels:
+    pv: {{ .Chart.Name }}-bj-gw
+spec:
+  capacity:
+    storage: {{ .Values.global.nfs.kubestore.capacity }}
+  claimRef:
+    name: {{ .Chart.Name }}-bj-gw
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: {{ .Values.global.nfs.kubestore.basepath}}{{ .Chart.Name }}/bj/gw
+    server: {{ .Values.global.nfs.kubestore.server}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-bj-gw
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.global.nfs.kubestore.capacity }}
+  storageClassName: nfs
+  selector:
+    matchLabels:
+      pv: {{ .Chart.Name }}-bj-gw
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Chart.Name }}-exchangejournal-gw
+  namespace: {{ .Release.Namespace }}
+  labels:
+    pv: {{ .Chart.Name }}-exchangejournal-gw
+spec:
+  capacity:
+    storage: {{ .Values.global.nfs.kubestore.capacity }}
+  claimRef:
+    name: {{ .Chart.Name }}-exchangejournal-gw
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: {{ .Values.global.nfs.kubestore.basepath}}{{ .Chart.Name }}/exchangejournal/gw
+    server: {{ .Values.global.nfs.kubestore.server}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-exchangejournal-gw
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.global.nfs.kubestore.capacity }}
+  storageClassName: nfs
+  selector:
+    matchLabels:
+      pv: {{ .Chart.Name }}-exchangejournal-gw
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Chart.Name }}-notification-gw
+  namespace: {{ .Release.Namespace }}
+  labels:
+    pv: {{ .Chart.Name }}-notification-gw
+spec:
+  capacity:
+    storage: {{ .Values.global.nfs.kubestore.capacity }}
+  claimRef:
+    name: {{ .Chart.Name }}-notification-gw
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: {{ .Values.global.nfs.kubestore.basepath}}{{ .Chart.Name }}/notification/gw
+    server: {{ .Values.global.nfs.kubestore.server}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-notification-gw
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.global.nfs.kubestore.capacity }}
+  storageClassName: nfs
+  selector:
+    matchLabels:
+      pv: {{ .Chart.Name }}-notification-gw
+

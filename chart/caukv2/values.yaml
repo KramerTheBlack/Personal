@@ -1,0 +1,285 @@
+# Default values for caukv2.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+history-max: 3
+global:
+     image:
+         repository: "msk-edms-aut-12.rosneft.ru/ksed"
+         tag: cauk_latest
+     namespace: cauk
+     segmentcode: "00"
+     segmentdns: ksed.rosneft.ru
+     nodes:
+         apps:
+             server1:
+                  name: "msk-edms-app-11"
+                  ip: "10.14.22.5"
+             server2:
+                  name: "msk-edms-app-12"
+                  ip: "10.14.22.6"
+             server3:
+                  name: "msk-edms-app-13"
+                  ip: "10.14.22.7"
+             server4:
+                  name: "msk-edms-app-14"
+                  ip: "10.14.22.8"
+             server5:
+                  name: "msk-edms-app-15"
+                  ip: "10.14.22.77"
+             server6:
+                  name: "msk-edms-app-16"
+                  ip: "10.14.22.113"
+         sol:
+             server1:
+                  name: "msk-edms-sol-11"
+                  ip: "10.14.22.23"
+             server2:
+                  name: "msk-edms-sol-12"
+                  ip: "10.14.22.24"
+             server3:
+                  name: "msk-edms-sol-13"
+                  ip: "10.14.22.25"
+             server4:
+                  name: "msk-edms-sol-14"
+                  ip: "10.14.22.26"
+             server5:
+                  name: "msk-edms-sol-15"
+                  ip: "10.14.22.95"
+             server6:
+                  name: "msk-edms-sol-16"
+                  ip: "10.14.22.112"
+         addons:
+             server1:
+                  name: "msk-edms-app-12"
+                  ip: "10.14.22.6"
+     nfs:
+         kubestore:
+             server: "10.14.22.41"
+             basepath: "/KubStore/cauk/"
+             capacity: 5G
+         contentstore:
+             server: "10.14.22.39"
+             basepath: "/NFS_vol/qtree_nfs1/ContentCenter/contentstore_remote"
+             capacity: 21T
+         contentstore_arc:
+             server: "10.14.22.41"
+             basepath: "/KSED_Content_ADV/tsauk_old/"
+             capacity: 10T
+         local:
+             capacity: 2G
+             solrcapacity: 2T
+             logcapacity: 20G
+     databases:
+         dbm:
+             server: "10.14.22.xxx"
+         dbr:
+             server: "10.14.22.xxx"
+         notification:
+             server: "10.14.22.21"
+         bj:
+             server: "10.14.22.21"
+         exchangejournal:
+             server: "10.14.22.21"
+     services:
+         activemq_svc:
+             server: "{{.Values.global.clusterips.segment}}.2"
+         bj:
+             server: "{{.Values.global.clusterips.segment}}.4"
+         notification:
+             server: "{{.Values.global.clusterips.segment}}.3"
+         exchangejournal:
+             server: "{{.Values.global.clusterips.segment}}.5"
+         federalization:
+             server: "10.14.22.xxx"
+         mail:
+             server: "10.14.22.xxx"
+         activedirectory:
+             server: "10.14.22.xxx"
+     loadbalancers:
+         solr:
+             server: "{{.Values.global.clusterips.segment}}.230"
+             port: "8880"
+         app:
+             server: "10.14.22.xxx"
+         mail:
+             server: "{{.Values.global.clusterips.segment}}.230"
+             port: "25"
+     clusterips:
+# Задать свободную подсетку, распределение айпишников внути - автоматом
+         segment: "10.233.10"
+# Автоматическое распределение айпишников - можно не трогать
+         addons:
+             hazelcast: "{{.Values.global.clusterips.segment}}.1"
+             activemq_svc: "{{.Values.global.clusterips.segment}}.2"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.246"
+             notification: "{{.Values.global.clusterips.segment}}.3"
+             bj: "{{.Values.global.clusterips.segment}}.4"
+             exchangejournal: "{{.Values.global.clusterips.segment}}.5"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.6"
+             bj_lb: "{{.Values.global.clusterips.segment}}.7"
+             notification_lb: "{{.Values.global.clusterips.segment}}.8"
+             exchangejournal_lb: "{{.Values.global.clusterips.segment}}.9"
+             exchangejournal_jmx: "{{.Values.global.clusterips.segment}}.27"
+             notification_jmx: "{{.Values.global.clusterips.segment}}.28"
+             bj_jmx: "{{.Values.global.clusterips.segment}}.29"
+# =============================================================================================
+# =========================== ПАРА 1 ==========================================================
+# =============================================================================================
+         app1:
+             activemq: "{{.Values.global.clusterips.segment}}.10"
+             activemq_web: "{{.Values.global.clusterips.segment}}.11"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.12"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.26"
+             alfresco: "{{.Values.global.clusterips.segment}}.13"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.14"
+             share: "{{.Values.global.clusterips.segment}}.15"
+             share_jmx: "{{.Values.global.clusterips.segment}}.16"
+             share_lb: "{{.Values.global.clusterips.segment}}.17"
+             ild: "{{.Values.global.clusterips.segment}}.181"
+#=================== На случай, если на серверах будет по 2 аппы ==============================
+             alfresco2: "{{.Values.global.clusterips.segment}}.18"
+             alfresco2_lb: "{{.Values.global.clusterips.segment}}.19"
+             share2: "{{.Values.global.clusterips.segment}}.20"
+             share2_jmx: "{{.Values.global.clusterips.segment}}.21"
+             share2_lb: "{{.Values.global.clusterips.segment}}.22"
+#==============================================================================================
+         sol1:
+             alfresco: "{{.Values.global.clusterips.segment}}.23"
+             solr: "{{.Values.global.clusterips.segment}}.24"
+             solr_lb: "{{.Values.global.clusterips.segment}}.25"
+# =============================================================================================
+# =============================================================================================
+
+# =============================================================================================
+# =========================== ПАРА 2 ==========================================================
+# =============================================================================================
+         app2:
+             activemq: "{{.Values.global.clusterips.segment}}.50"
+             activemq_web: "{{.Values.global.clusterips.segment}}.51"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.52"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.66"
+             alfresco: "{{.Values.global.clusterips.segment}}.53"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.54"
+             share: "{{.Values.global.clusterips.segment}}.55"
+             share_jmx: "{{.Values.global.clusterips.segment}}.56"
+             share_lb: "{{.Values.global.clusterips.segment}}.57"
+             ild: "{{.Values.global.clusterips.segment}}.182"
+#=================== На случай, если на серверах будет по 2 аппы ==============================
+             alfresco2: "{{.Values.global.clusterips.segment}}.58"
+             alfresco2_lb: "{{.Values.global.clusterips.segment}}.59"
+             share2: "{{.Values.global.clusterips.segment}}.60"
+             share2_jmx: "{{.Values.global.clusterips.segment}}.61"
+             share2_lb: "{{.Values.global.clusterips.segment}}.62"
+#==============================================================================================
+         sol2:
+             alfresco: "{{.Values.global.clusterips.segment}}.63"
+             solr: "{{.Values.global.clusterips.segment}}.64"
+             solr_lb: "{{.Values.global.clusterips.segment}}.65"
+# =============================================================================================
+# =============================================================================================
+
+# =============================================================================================
+# =========================== ПАРА 3 ==========================================================
+# =============================================================================================
+         app3:
+             activemq: "{{.Values.global.clusterips.segment}}.110"
+             activemq_web: "{{.Values.global.clusterips.segment}}.111"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.112"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.126"
+             alfresco: "{{.Values.global.clusterips.segment}}.113"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.114"
+             share: "{{.Values.global.clusterips.segment}}.115"
+             share_jmx: "{{.Values.global.clusterips.segment}}.116"
+             share_lb: "{{.Values.global.clusterips.segment}}.117"
+             ild: "{{.Values.global.clusterips.segment}}.183"
+#=================== На случай, если на серверах будет по 2 аппы ==============================
+             alfresco2: "{{.Values.global.clusterips.segment}}.118"
+             alfresco2_lb: "{{.Values.global.clusterips.segment}}.119"
+             share2: "{{.Values.global.clusterips.segment}}.120"
+             share2_jmx: "{{.Values.global.clusterips.segment}}.121"
+             share2_lb: "{{.Values.global.clusterips.segment}}.122"
+#==============================================================================================
+         sol3:
+             alfresco: "{{.Values.global.clusterips.segment}}.123"
+             solr: "{{.Values.global.clusterips.segment}}.124"
+             solr_lb: "{{.Values.global.clusterips.segment}}.125"
+# =============================================================================================
+# =============================================================================================
+
+# =============================================================================================
+# =========================== ПАРА 4 ==========================================================
+# =============================================================================================
+         app4:
+             activemq: "{{.Values.global.clusterips.segment}}.150"
+             activemq_web: "{{.Values.global.clusterips.segment}}.151"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.152"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.166"
+             alfresco: "{{.Values.global.clusterips.segment}}.153"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.154"
+             share: "{{.Values.global.clusterips.segment}}.155"
+             share_jmx: "{{.Values.global.clusterips.segment}}.156"
+             share_lb: "{{.Values.global.clusterips.segment}}.157"
+             ild: "{{.Values.global.clusterips.segment}}.184"
+#=================== На случай, если на серверах будет по 2 аппы ==============================
+             alfresco2: "{{.Values.global.clusterips.segment}}.158"
+             alfresco2_lb: "{{.Values.global.clusterips.segment}}.159"
+             share2: "{{.Values.global.clusterips.segment}}.160"
+             share2_jmx: "{{.Values.global.clusterips.segment}}.161"
+             share2_lb: "{{.Values.global.clusterips.segment}}.162"
+#==============================================================================================
+         sol4:
+             alfresco: "{{.Values.global.clusterips.segment}}.163"
+             solr: "{{.Values.global.clusterips.segment}}.164"
+             solr_lb: "{{.Values.global.clusterips.segment}}.165"
+# =============================================================================================
+# =============================================================================================
+
+# =============================================================================================
+# =========================== ПАРА 5 ==========================================================
+# =============================================================================================
+         app5:
+             activemq: "{{.Values.global.clusterips.segment}}.210"
+             activemq_web: "{{.Values.global.clusterips.segment}}.211"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.212"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.226"
+             alfresco: "{{.Values.global.clusterips.segment}}.213"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.214"
+             share: "{{.Values.global.clusterips.segment}}.215"
+             share_jmx: "{{.Values.global.clusterips.segment}}.216"
+             share_lb: "{{.Values.global.clusterips.segment}}.217"
+             ild: "{{.Values.global.clusterips.segment}}.219"
+#==============================================================================================
+         sol5:
+             alfresco: "{{.Values.global.clusterips.segment}}.223"
+             solr: "{{.Values.global.clusterips.segment}}.224"
+             solr_lb: "{{.Values.global.clusterips.segment}}.225"
+# =============================================================================================
+# =============================================================================================
+
+
+# =============================================================================================
+# =========================== ПАРА 6 ==========================================================
+# =============================================================================================
+         app6:
+             activemq: "{{.Values.global.clusterips.segment}}.167"
+             activemq_web: "{{.Values.global.clusterips.segment}}.168"
+             activemq_lb: "{{.Values.global.clusterips.segment}}.169"
+             activemq_jmx: "{{.Values.global.clusterips.segment}}.170"
+             alfresco: "{{.Values.global.clusterips.segment}}.171"
+             alfresco_lb: "{{.Values.global.clusterips.segment}}.172"
+             share: "{{.Values.global.clusterips.segment}}.173"
+             share_jmx: "{{.Values.global.clusterips.segment}}.174"
+             share_lb: "{{.Values.global.clusterips.segment}}.175"
+             ild: "{{.Values.global.clusterips.segment}}.176"
+#==============================================================================================
+         sol6:
+             alfresco: "{{.Values.global.clusterips.segment}}.227"
+             solr: "{{.Values.global.clusterips.segment}}.228"
+             solr_lb: "{{.Values.global.clusterips.segment}}.229"
+             solrslave: "{{.Values.global.clusterips.segment}}.240"
+             solrslave_lb: "{{.Values.global.clusterips.segment}}.241"
+
+# =============================================================================================
+# =============================================================================================
+
+

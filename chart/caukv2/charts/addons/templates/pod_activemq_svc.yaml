@@ -1,0 +1,86 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-activemq
+  name: {{ .Chart.Name }}-activemq
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      service: {{ .Chart.Name }}-activemq
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        service: {{ .Chart.Name }}-activemq
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.global.nodes.apps.server5.name }}
+      imagePullSecrets:
+        - name: harbor-registry-secret
+      containers:
+        - image: {{ .Values.global.image.repository }}/activemq:{{ .Values.global.image.tag }}
+          imagePullPolicy: "Always"
+#          env:
+#          - name: JAVA_ARGS
+#            value: '-Dcom.sun.management.jmxremote
+#          -Dcom.sun.management.jmxremote.port=10087
+#          -Dcom.sun.management.jmxremote.rmi.port=10087
+#          -Djava.rmi.server.hostname={{tpl .Values.global.clusterips.addons.activemq_svc .}}
+#          -Dcom.sun.management.jmxremote.ssl=false
+#          -Dcom.sun.management.jmxremote.authenticate=false'
+          livenessProbe:
+            tcpSocket:
+              port: 61616
+            failureThreshold: 20
+            periodSeconds: 15
+            timeoutSeconds: 10
+          name: {{ .Chart.Name }}-activemq
+          ports:
+            - containerPort: 61616
+            - containerPort: 8161
+          resources:
+            limits:
+              cpu: "2"
+              memory: "5G"
+              ephemeral-storage: "5G"
+            requests:
+              ephemeral-storage: "512M"
+
+          volumeMounts:
+            - name: logs
+              mountPath: /var/lib/artemis-instance/log
+            - name: data
+              mountPath: /var/lib/artemis-instance/data
+            - name: activemq-broker-xml
+              mountPath: /var/lib/artemis-instance/etc-override/broker.xml
+              subPath: activemq-broker-xml
+            - name: activemq-mgm-xml
+              mountPath: /var/lib/artemis-instance/etc-override/management.xml
+              subPath: activemq-mgm-xml
+            - name: activemq-mgm-xml
+              mountPath: /var/lib/artemis-instance/etc-override/artemis.profile
+              subPath: artemis-profile
+      restartPolicy: Always
+      hostname: {{ .Release.Namespace }}-activemq-svc
+      volumes:
+        - name: data
+          hostPath:
+            path: /opt/activemq/data
+            type: DirectoryOrCreate
+        - name: logs
+          hostPath:
+            path: /var/log/activemq
+            type: DirectoryOrCreate
+        - name: activemq-broker-xml
+          configMap:
+             name: {{ .Chart.Name }}-activemq-broker-xml
+        - name: activemq-mgm-xml
+          configMap:
+             name: {{ .Chart.Name }}-activemq-mgm-xml
+
+

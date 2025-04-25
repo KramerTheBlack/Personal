@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Namespace }}-{{ .Chart.Name }}-activemq-svc
+  labels:
+    pv: {{ .Release.Namespace }}-{{ .Chart.Name }}-activemq-svc
+spec:
+  capacity:
+    storage: 5G
+  claimRef:
+    name: {{ .Release.Namespace }}-{{ .Chart.Name }}-activemq-svc
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+    path: {{ .Values.global.nfs.kubestore.basepath}}{{ .Chart.Name }}/activemq/logs
+    server: {{ .Values.global.nfs.kubestore.server}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Namespace }}-{{ .Chart.Name }}-activemq-svc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-activemq-svc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5G
+  storageClassName: nfs
+  selector:
+    matchLabels:
+      pv: {{ .Release.Namespace }}-{{ .Chart.Name }}-activemq-svc
+
+status: {}

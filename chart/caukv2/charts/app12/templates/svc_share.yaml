@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-share
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: share
+    name: {{ .Chart.Name }}-share
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.app2.share .}}"
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  - name: "8543"
+    port: 8543
+    targetPort: 8543
+  selector:
+    app: share
+    name: {{ .Chart.Name }}-share
+  type: NodePort
+status:
+  loadBalancer: {}
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: lb-{{ .Chart.Name }}-share
+#  namespace: {{ .Release.Namespace }}
+#  labels:
+#    app: share
+#    name: lb-{{ .Chart.Name }}-share
+#spec:
+#  clusterIP: "{{tpl .Values.global.clusterips.app2.share_lb .}}"
+#  ports:
+#  - port: 8180
+#    targetPort: 8080
+#  selector:
+#    app: share
+#    name: {{ .Chart.Name }}-share
+#  type: LoadBalancer
+#  loadBalancerIP: "{{ .Values.global.nodes.apps.server2.ip}}"
+#  externalIPs: ["{{ .Values.global.nodes.apps.server2.ip}}"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-share-jmx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: share
+    name: {{ .Chart.Name }}-share-jmx
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.app2.share_jmx .}}"
+  ports:
+  - name: "10064"
+    port: 10064
+    targetPort: 10064
+  selector:
+    app: share
+    name: {{ .Chart.Name }}-share
+  type: NodePort
+status:
+  loadBalancer: {}

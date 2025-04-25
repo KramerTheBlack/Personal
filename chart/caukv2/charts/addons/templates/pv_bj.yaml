@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Namespace }}-{{ .Chart.Name }}-bj
+  labels:
+    pv: {{ .Release.Namespace }}-{{ .Chart.Name }}-bj
+spec:
+  capacity:
+    storage: 5G
+  claimRef:
+    name: {{ .Release.Namespace }}-{{ .Chart.Name }}-bj
+    namespace: {{ .Release.Namespace }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs
+  nfs:
+  nfs:
+    path: {{ .Values.global.nfs.kubestore.basepath}}{{ .Chart.Name }}/bj/logs
+    server: {{ .Values.global.nfs.kubestore.server}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Namespace }}-{{ .Chart.Name }}-bj
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-bj
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5G
+  storageClassName: nfs
+  selector:
+    matchLabels:
+      pv: {{ .Release.Namespace }}-{{ .Chart.Name }}-bj
+status: {}

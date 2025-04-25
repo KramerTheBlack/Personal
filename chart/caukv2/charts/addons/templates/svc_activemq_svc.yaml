@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-activemq
+  name: {{ .Chart.Name }}-activemq
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.addons.activemq_svc .}}"
+  ports:
+    - name: "61616"
+      port: 61616
+      targetPort: 61616
+      protocol: TCP
+    - name: "8171"
+      port: 8171
+      targetPort: 8161
+    - name: "10087"
+      port: 10087
+      targetPort: 10087
+      protocol: TCP
+  selector:
+    service: {{ .Chart.Name }}-activemq
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-{{ .Chart.Name }}-activemq
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-activemq
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.addons.activemq_lb .}}"
+  ports:
+  - name: "61616"
+    port: 61616
+    targetPort: 61616
+  - name: "8171"
+    port: 8171
+    targetPort: 8161
+  - name: "10087"
+    port: 10087
+    targetPort: 10087
+    protocol: TCP
+  selector:
+    service: {{ .Chart.Name }}-activemq
+  type: LoadBalancer
+  loadBalancerIP: "{{ .Values.global.nodes.apps.server5.ip}}"
+  externalIPs: ["{{ .Values.global.nodes.apps.server5.ip}}"]

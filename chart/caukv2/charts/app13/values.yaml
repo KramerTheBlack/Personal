@@ -1,0 +1,5 @@
+replicas: 1
+bsdict: false
+bsmodel: false
+bsrep: false
+bsproc: false

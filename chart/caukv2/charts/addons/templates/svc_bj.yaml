@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-bj
+  name: {{ .Chart.Name }}-bj
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.addons.bj .}}"
+  ports:
+    - name: "8580"
+      port: 8580
+      targetPort: 8080
+  selector:
+    service: {{ .Chart.Name }}-bj
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-{{ .Chart.Name }}-bj
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-bj
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.addons.bj_lb .}}"
+  ports:
+  - port: 8580
+    targetPort: 8080
+  selector:
+    service: {{ .Chart.Name }}-bj
+  type: LoadBalancer
+  loadBalancerIP: "{{ .Values.global.nodes.apps.server5.ip}}"
+  externalIPs: ["{{ .Values.global.nodes.apps.server5.ip}}"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  labels:
+    service: {{ .Chart.Name }}-bj
+  name: {{ .Chart.Name }}-bj-jmx
+spec:
+  clusterIP: "{{tpl .Values.global.clusterips.addons.bj_jmx .}}"
+  ports:
+    - name: "10086"
+      port: 10086
+      targetPort: 10086
+  selector:
+    service: {{ .Chart.Name }}-bj
+status:
+  loadBalancer: {}

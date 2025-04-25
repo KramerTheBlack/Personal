@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Chart.Name }}-share-logs
+  namespace: {{ .Release.Namespace }}
+spec:
+  capacity:
+    storage: {{ .Values.global.nfs.local.capacity }}
+  claimRef:
+    name: {{ .Chart.Name }}-share-logs
+    namespace: {{ .Release.Namespace }}
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /var/log/share_1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ .Values.global.nodes.apps.server6.name }}
+---
+# PV CLAIMS DOWNWARDS
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Chart.Name }}-share-logs
+  namespace: {{ .Release.Namespace }}
+spec:
+  storageClassName: local-storage
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.global.nfs.local.capacity }}
+  selector:
+    matchLabels:
+      pv: {{ .Chart.Name }}-share-logs

@@ -1,0 +1,132 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-solr4
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}-solr4
+    name: {{ .Chart.Name }}-solr4
+    common: solr4
+spec:
+  replicas: {{ .Values.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-solr4
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-solr4
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: ' -Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.port=10074
+-Dcom.sun.management.jmxremote.rmi.port=10074
+-Dcom.sun.management.jmxremote.ssl=false
+-Dfile.encoding=UTF-8
+-Djava.rmi.server.hostname={{tpl .Values.global.clusterips.sol1.solr .}}
+-Duser.language=ru
+-Duser.timezone=Europe/Moscow
+-Xms150G
+-Xmx150G
+-XX:+UnlockExperimentalVMOptions
+-XX:+UseG1GC
+-XX:G1HeapRegionSize=32M
+-XX:G1MaxNewSizePercent=30
+-XX:G1NewSizePercent=5
+-XX:InitiatingHeapOccupancyPercent=60
+-XX:MaxGCPauseMillis=500
+-XX:ParallelGCThreads=12
+-XX:+UnlockDiagnosticVMOptions
+-XX:+LogCompilation
+-XX:LogFile=jit_compiler.log 
+-XX:+PrintGCDetails 
+-Xloggc:gc-%t.log 
+-XX:+UseGCLogFileRotation 
+-XX:NumberOfGCLogFiles=10 
+-XX:GCLogFileSize=10M '
+            - name: ALFRESCO_SECURE_COMMS
+              value: none
+            - name: SOLR_ALFRESCO_HOST
+              value: {{tpl .Values.global.clusterips.sol5.alfresco .}}
+#            - name: SOLR_ALFRESCO_HOST
+#              value: {{tpl .Values.global.clusterips.app5.alfresco .}}
+            - name: SOLR_ALFRESCO_PORT
+              value: "8080"
+            - name: SOLR_CREATE_ALFRESCO_DEFAULTS
+              value: alfresco
+            - name: SOLR_JAVA_MEM
+              value: -Xms100G -Xmx100G
+            - name: SOLR_SOLR_HOST
+              value: {{tpl .Values.global.clusterips.sol1.solr .}}
+            - name: SOLR_SOLR_PORT
+              value: "8080"
+          image: {{ .Values.global.image.repository }}/solr4:{{ .Values.global.image.tag }}
+          resources:
+            limits:
+              memory: "200G"
+              cpu: "26"
+            requests:
+              ephemeral-storage: "128M"
+          imagePullPolicy: "Always"
+          livenessProbe:
+            httpGet:
+              path: /solr4
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 20
+            periodSeconds: 15
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /solr4
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 3
+            timeoutSeconds: 30
+            periodSeconds: 5
+          name: {{ .Chart.Name }}-solr4
+          ports:
+            - containerPort: 8080
+            - containerPort: 7777
+            - containerPort: 10074
+          stdin: true
+          volumeMounts:
+            - mountPath: /opt/infooborot/data
+              name: sol-infodata
+            - mountPath: /opt/tomcat8/logs
+              name: sol-logs
+            - mountPath: /opt/infooborot/data/solr/alfresco/workspace-SpacesStore/conf/solrcore.properties
+              name: {{ .Chart.Name }}-solorcore
+              subPath: {{ .Chart.Name }}-solorcore
+              readOnly: true
+            - mountPath: /etc/tomcat8/server.xml
+              name: solr-serverxml
+              subPath: solr-serverxml
+            - mountPath: /opt/infooborot/data/solr/log4j-solr.properties
+              name: solr-log4j-prop
+              subPath: solr-log4j-prop-on
+      restartPolicy: Always
+      volumes:
+        - name: solr-log4j-prop
+          configMap:
+            name: solr-log4j-prop
+        - name: solr-serverxml
+          configMap:
+            name: solr-serverxml
+        - name: {{ .Chart.Name }}-solorcore
+          configMap:
+            name: {{ .Chart.Name }}-solorcore
+        - name: sol-infodata
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-infodata
+        - name: sol-logs
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-logs
+      imagePullSecrets:
+        - name: harbor-registry-secret

@@ -1,0 +1,8 @@
+mem: "130G"
+cpu: "9"
+xms: 90
+xmx: 90
+smem: "20G"
+scpu: "8500m"
+sxms: 16
+sxmx: 16
