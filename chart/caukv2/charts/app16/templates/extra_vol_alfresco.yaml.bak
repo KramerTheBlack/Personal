@@ -1,8 +1,0 @@
-      - name: fed
-        hostPath:
-          path: /opt/mounts/21032025/alfresco/federalization-repo-2.0-SNAPSHOT.jar
-          type: File
-      - name: fedapi
-        hostPath:
-          path: /opt/mounts/21032025/alfresco/federalization-repo-api-2.0-SNAPSHOT.jar
-          type: File

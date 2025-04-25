@@ -1,4 +1,0 @@
-          - name: fed
-            mountPath: /mount/tomcat8/webapps/alfresco/WEB-INF/lib/federalization-repo-2.0-SNAPSHOT.jar
-          - name: fedapi
-            mountPath: /mount/tomcat8/webapps/alfresco/WEB-INF/lib/federalization-repo-api-2.0-SNAPSHOT.jar
